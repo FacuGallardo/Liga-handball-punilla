@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import Login from "./Login";
-import HudPrincipal from "./Menu";
+import Menu from "./Menu";
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -20,10 +20,7 @@ function App() {
       {showLogin ? (
         <Login onLoginSuccess={handleLoginSuccess} />
       ) : (
-        <HudPrincipal
-          isAuthenticated={isAuthenticated}
-          onShowLogin={handleShowLogin}
-        />
+        <Menu />
       )}
     </>
   );

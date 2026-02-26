@@ -138,7 +138,7 @@ export default function VerClubes() {
     const reader = new FileReader();
     reader.onloadend = () => {
       if (typeof reader.result === "string") {
-        setState(prev => ({ ...prev, logoUrl: reader.result }));
+        setState(prev => ({ ...prev, logoUrl: reader.result as string }));
       }
     };
     reader.readAsDataURL(file);
