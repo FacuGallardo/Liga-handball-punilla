@@ -1,43 +1,29 @@
 import React, { useState } from "react";
 import { styles } from "./ReferentesPage";
 import type { CSSProperties } from "react";
+import type { Club, CreateReferenteDto } from "./types";
 import "./referentes-responsive.css";
 
-interface Club {
-  id: number;
-  nombre: string;
-}
-
-interface CreateReferenteDto {
-  nombre: string;
-  apellido: string;
-  categoria: "Masculino" | "Femenino";
-  dni: string;
-  correo: string;
-  telefono: string; // <--- AÑADIDO
-  clubId: number;
-}
-
-type Props = {
+interface Props {
   onGuardar: (dto: CreateReferenteDto) => void;
   clubes: Club[];
-};
+}
 
 const categorias = ["Masculino", "Femenino"];
 
 const estiloBotonGuardar: CSSProperties = {
-    padding: "0.5rem 1rem",
-    borderRadius: "5px",
-    backgroundColor: "#1f3c88",
-    color: "white",
-    border: "none",
-    cursor: "pointer",
-    fontWeight: "600",
-    fontSize: "16px",
-    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-    width: "100%",
-    marginTop: "20px",
-    transition: 'background-color 0.3s ease',
+  padding: "0.5rem 1rem",
+  borderRadius: "5px",
+  backgroundColor: "#1f3c88",
+  color: "white",
+  border: "none",
+  cursor: "pointer",
+  fontWeight: "600",
+  fontSize: "16px",
+  boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+  width: "100%",
+  marginTop: "20px",
+  transition: 'background-color 0.3s ease',
 };
 
 const RegistrarReferente: React.FC<Props> = ({ onGuardar, clubes }) => {
@@ -47,7 +33,7 @@ const RegistrarReferente: React.FC<Props> = ({ onGuardar, clubes }) => {
     categoria: "Masculino",
     dni: "",
     correo: "",
-    telefono: "", // <--- Inicializado
+    telefono: "",
     clubId: 0,
   });
 
@@ -64,7 +50,7 @@ const RegistrarReferente: React.FC<Props> = ({ onGuardar, clubes }) => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     onGuardar(form);
-    
+
     // Limpiar formulario
     setForm({
       nombre: "",
@@ -72,7 +58,7 @@ const RegistrarReferente: React.FC<Props> = ({ onGuardar, clubes }) => {
       categoria: "Masculino",
       dni: "",
       correo: "",
-      telefono: "", // <--- Limpiar también teléfono
+      telefono: "",
       clubId: 0,
     });
   };
@@ -108,12 +94,12 @@ const RegistrarReferente: React.FC<Props> = ({ onGuardar, clubes }) => {
           <div className="categoria-grid">
             {categorias.map((c) => (
               <div key={c} className="categoria-option">
-                <input 
-                  type="radio" 
+                <input
+                  type="radio"
                   id={`cat-${c}`}
                   name="categoria"
                   value={c}
-                  checked={form.categoria === c}
+                  checked={form.categoria === c as any}
                   onChange={handleChange}
                   required
                 />
@@ -145,7 +131,6 @@ const RegistrarReferente: React.FC<Props> = ({ onGuardar, clubes }) => {
           required
         />
 
-        {/* INPUT DE TELÉFONO OBLIGATORIO */}
         <input
           name="telefono"
           type="tel"
@@ -153,7 +138,7 @@ const RegistrarReferente: React.FC<Props> = ({ onGuardar, clubes }) => {
           value={form.telefono}
           onChange={handleChange}
           style={styles.inputOscuro}
-          required // <--- Obligatorio
+          required
         />
 
         <select

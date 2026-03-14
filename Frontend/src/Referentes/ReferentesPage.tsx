@@ -4,42 +4,13 @@ import RegistrarReferente from "./RegistrarReferente";
 import EditarReferente from "./EditarReferente";
 import ListaReferente from "./ListaReferente";
 import VistaReferente from "./VistaReferente";
-
-// --- NUEVAS DEFINICIONES DE TIPOS ---
-interface Club {
-  id: number;
-  nombre: string;
-}
-
-export interface Referente {
-  id: number;
-  nombre: string;
-  apellido: string;
-  categoria: "Masculino" | "Femenino";
-  dni: string;
-  correo: string;
-  telefono: string; // <--- AÑADIDO: Teléfono obligatorio
-  clubId: number;
-  club: Club;
-}
-
-export interface CreateReferenteDto {
-  nombre: string;
-  apellido: string;
-  categoria: "Masculino" | "Femenino";
-  dni: string;
-  correo: string;
-  telefono: string; // <--- AÑADIDO
-  clubId: number;
-}
-
-export type UpdateReferenteDto = Partial<CreateReferenteDto>;
-
-// --- URL DE LA API ---
-const API_URL = "http://localhost:3001";
+import { useReferentes } from "./hooks/useReferentes";
+import type { Referente, CreateReferenteDto, UpdateReferenteDto } from "./types";
+import { validarReferente } from "./utils/referenteValidations";
+import "./referentes-responsive.css";
 
 // =========================================================
-// 🎨 SECCIÓN DE ESTILOS (EXPORTADA) 🎨
+// 🎨 SECCIÓN DE ESTILOS
 // =========================================================
 interface Styles {
   [key: string]: CSSProperties;
@@ -146,82 +117,25 @@ export const styles: Styles = {
   },
 };
 
-// --- VALIDACIÓN ---
-function validarReferente(
-  nuevo: CreateReferenteDto | UpdateReferenteDto,
-  referentes: Referente[],
-  editId: number | null = null,
-): string | null {
-  if (
-    !nuevo.nombre?.trim() ||
-    !nuevo.apellido?.trim() ||
-    !nuevo.categoria ||
-    !nuevo.dni?.trim() ||
-    !nuevo.correo?.trim() ||
-    !nuevo.telefono?.trim() || // <--- Validación de teléfono
-    !nuevo.clubId
-  ) {
-    return "Todos los campos son obligatorios, incluido el teléfono.";
-  }
-  if (nuevo.dni && !/^\d{7,10}$/.test(nuevo.dni)) {
-    return "El DNI debe tener entre 7 y 10 números.";
-  }
-  // Validación simple de teléfono (solo números, entre 7 y 15 caracteres)
-  if (nuevo.telefono && !/^\d{7,15}$/.test(nuevo.telefono)) {
-      return "El teléfono debe contener solo números (mínimo 7).";
-  }
-
-  if (
-    nuevo.dni &&
-    referentes.some((r) => r.dni === nuevo.dni && r.id !== editId)
-  ) {
-    return "El DNI ya está registrado.";
-  }
-  return null;
-}
-
 // =========================================================
 
 const ReferentesPage: React.FC = () => {
-  const [referentes, setReferentes] = useState<Referente[]>([]);
-  const [clubes, setClubes] = useState<Club[]>([]);
-  const [referenteSeleccionado, setReferenteSeleccionado] =
-    useState<Referente | null>(null);
+  const { referentes, clubes, error, fetchReferentes, fetchClubes, crearReferente, actualizarReferente, eliminarReferente, setError } = useReferentes();
+  const [referenteSeleccionado, setReferenteSeleccionado] = useState<Referente | null>(null);
   const [editando, setEditando] = useState(false);
   const [mostrarRegistro, setMostrarRegistro] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [validationErrors, setValidationErrors] = useState<any>(null);
 
   useEffect(() => {
-    cargarReferentes();
-    cargarClubes();
-  }, []);
-
-  const cargarReferentes = async () => {
-    try {
-      const res = await fetch(`${API_URL}/referentes`);
-      if (!res.ok) throw new Error("Error al cargar referentes");
-      const data: Referente[] = await res.json();
-      setReferentes(data);
-    } catch (err) {
-      setError((err as Error).message);
-    }
-  };
-
-  const cargarClubes = async () => {
-    try {
-      const res = await fetch(`${API_URL}/clubes`);
-      if (!res.ok) throw new Error("Error al cargar clubes");
-      const data: Club[] = await res.json();
-      setClubes(data);
-    } catch (err) {
-      setError((err as Error).message);
-    }
-  };
+    fetchReferentes();
+    fetchClubes();
+  }, [fetchReferentes, fetchClubes]);
 
   const manejarVolver = () => {
     setReferenteSeleccionado(null);
     setEditando(false);
     setError(null);
+    setValidationErrors(null);
   };
 
   const manejarIrRegistro = () => {
@@ -236,74 +150,43 @@ const ReferentesPage: React.FC = () => {
 
   const registrarReferente = async (dto: CreateReferenteDto) => {
     setError(null);
-    const errorMsg = validarReferente(dto, referentes);
-    if (errorMsg) {
-      setError(errorMsg);
+    setValidationErrors(null);
+    
+    const errors = validarReferente(dto, referentes);
+    if (errors.length > 0) {
+      setValidationErrors(errors);
       return;
     }
 
-    try {
-      const res = await fetch(`${API_URL}/referentes`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(dto),
-      });
-      if (!res.ok) {
-        const errData = await res.json();
-        throw new Error(errData.message || "Error al crear referente");
-      }
-      await cargarReferentes();
+    const result = await crearReferente(dto);
+    if (result) {
       manejarIrLista();
-    } catch (err) {
-      setError((err as Error).message);
     }
   };
 
-  const actualizarReferente = async (id: number, dto: UpdateReferenteDto) => {
+  const actualizarReferenteHandler = async (id: number, dto: UpdateReferenteDto) => {
     setError(null);
-    const errorMsg = validarReferente(dto, referentes, id);
-    if (errorMsg) {
-      setError(errorMsg);
+    setValidationErrors(null);
+    
+    const errors = validarReferente(dto, referentes, id);
+    if (errors.length > 0) {
+      setValidationErrors(errors);
       return;
     }
 
-    try {
-      const res = await fetch(`${API_URL}/referentes/${id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(dto),
-      });
-      if (!res.ok) {
-        const errData = await res.json();
-        throw new Error(errData.message || "Error al actualizar referente");
-      }
-      await cargarReferentes();
+    const result = await actualizarReferente(id, dto);
+    if (result) {
       manejarIrLista();
-    } catch (err) {
-      setError((err as Error).message);
     }
   };
 
- const eliminarReferenteAPI = async (id: number) => {
-    setError(null);
-    try {
-      const res = await fetch(`${API_URL}/referentes/${id}`, {
-        method: "DELETE",
-      });
-      if (!res.ok) {
-        throw new Error("Error al eliminar referente");
-      }
-      await cargarReferentes();
-      manejarVolver();
-    } catch (err) {
-      setError((err as Error).message);
-    }
-  };
-
-  // Función WRAPPER - Agrega confirmación antes de ejecutar
-  const eliminarReferente = (id: number) => {
+  const eliminarReferenteHandler = (id: number) => {
     if (!window.confirm("¿Seguro que quieres eliminar este referente?")) return;
-    eliminarReferenteAPI(id);
+    eliminarReferente(id).then((success) => {
+      if (success) {
+        manejarVolver();
+      }
+    });
   };
 
   const vistaDetalleActiva = referenteSeleccionado !== null;
@@ -323,6 +206,16 @@ const ReferentesPage: React.FC = () => {
     marginTop: 0,
   };
 
+  const getErrorMessage = () => {
+    if (error) return error;
+    if (validationErrors && validationErrors.length > 0) {
+      return validationErrors.map((e: any) => e.message).join("; ");
+    }
+    return null;
+  };
+
+  const errorMessage = getErrorMessage();
+
   return (
     <div style={styles.contenedorPrincipal}>
       <h2 style={styles.titulo}>Gestión de Referentes</h2>
@@ -338,9 +231,9 @@ const ReferentesPage: React.FC = () => {
         <EditarReferente
           referente={referenteSeleccionado}
           clubes={clubes}
-          onActualizar={actualizarReferente}
+          onActualizar={actualizarReferenteHandler}
           onCancelar={manejarIrLista}
-          error={error}
+          error={errorMessage}
         />
       )}
 
@@ -361,9 +254,9 @@ const ReferentesPage: React.FC = () => {
             </button>
           </div>
 
-          {error && mostrarRegistro && (
+          {errorMessage && mostrarRegistro && (
             <div style={{ ...styles.mensajeAlerta, ...styles.mensajeError, maxWidth: "52rem", marginLeft: "auto", marginRight: "auto", marginBottom: "16px", marginTop: 0 }}>
-              {error}
+              {errorMessage}
             </div>
           )}
 
@@ -376,11 +269,11 @@ const ReferentesPage: React.FC = () => {
               <ListaReferente
                 referentes={referentes}
                 onVer={setReferenteSeleccionado}
-                onEditar={(ref) => {
+                onEditar={(ref: Referente) => {
                   setReferenteSeleccionado(ref);
                   setEditando(true);
                 }}
-                onEliminar={eliminarReferente}
+                onEliminar={eliminarReferenteHandler}
               />
             </div>
           )}
