@@ -35,7 +35,6 @@ const TablaPagosClub: React.FC<Props> = ({
     // Crear pago base mínimo y pasar al padre
     const nuevoPago: Omit<Pago, 'id'> = {
       tipo: tipo as any,
-      concepto: '',
       clubId,
       monto: 0,
       fecha: new Date().toISOString().split('T')[0],
