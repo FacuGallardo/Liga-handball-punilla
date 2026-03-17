@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { hasRole } from '../utils/auth';
 import { useRegistroPagos } from './hooks/useRegistroPagos';
-import './styles/pagos.css';
+import './hooks/styles/pagos.css';
 import TablaPagosClub from './TablaPagosClub.tsx';
 import HistorialPagos from './HistorialPagos.tsx';
 import type { Pago } from './types';
