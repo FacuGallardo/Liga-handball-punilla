@@ -291,9 +291,6 @@
   }
   .partido-item .club-names { 
     display: flex !important;
-    flex-wrap: wrap;
-    gap: 4px;
-    display: flex !important;
     flex-direction: column !important;
     gap: 10px !important;
     padding: 10px !important;
