@@ -48,8 +48,8 @@ export default function App() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   
   // Refs para manejar los timeouts de cierre de dropdown
-  const handballTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const institucionalTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const handballTimeoutRef = useRef<number | null>(null);
+  const institucionalTimeoutRef = useRef<number | null>(null);
 
   // --- 2. MODIFICACIÓN: Leer el token al inicio para persistir la sesión ---
   const [isLoggedIn, setIsLoggedIn] = useState(() => {
