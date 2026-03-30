@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react';
 import type { Referente, Club, CreateReferenteDto, UpdateReferenteDto } from '../types';
 
-const API_URL = 'http://localhost:3001/api';
+const API_URL = 'http://localhost:3001';
 
 interface UseReferentesReturn {
   referentes: Referente[];

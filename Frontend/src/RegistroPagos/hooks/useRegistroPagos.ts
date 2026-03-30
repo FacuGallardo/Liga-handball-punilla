@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react';
 import type { Pago, Club, CreatePagoDto, UpdatePagoDto } from '../types';
 
-const API_URL = 'http://localhost:3001/api';
+const API_URL = 'http://localhost:3001';
 
 interface UseRegistroPagosReturn {
   pagos: Pago[];
