@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { ClubesListado } from "./Clubes/pages/ClubesListado";
 import { CrearClub } from "./Clubes/pages/CrearClub";
 import { EditarClub } from "./Clubes/pages/EditarClub";
@@ -46,6 +46,10 @@ export default function App() {
   const [openHandball, setOpenHandball] = useState(false);
   const [openInstitucional, setOpenInstitucional] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  
+  // Refs para manejar los timeouts de cierre de dropdown
+  const handballTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const institucionalTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // --- 2. MODIFICACIÓN: Leer el token al inicio para persistir la sesión ---
   const [isLoggedIn, setIsLoggedIn] = useState(() => {
@@ -90,10 +94,45 @@ export default function App() {
     return () => {
       window.removeEventListener("click", closeDropdowns);
       window.removeEventListener("scroll", closeDropdowns);
+      // Limpiar timeouts pendientes
+      if (handballTimeoutRef.current) clearTimeout(handballTimeoutRef.current);
+      if (institucionalTimeoutRef.current) clearTimeout(institucionalTimeoutRef.current);
     };
   }, []);
 
   const stop = (e: any) => e.stopPropagation();
+
+  // Funciones para manejar el hover del dropdown Handball con delay
+  const handleHandballMouseEnter = () => {
+    if (handballTimeoutRef.current) {
+      clearTimeout(handballTimeoutRef.current);
+      handballTimeoutRef.current = null;
+    }
+    setOpenHandball(true);
+  };
+
+  const handleHandballMouseLeave = () => {
+    if (handballTimeoutRef.current) clearTimeout(handballTimeoutRef.current);
+    handballTimeoutRef.current = setTimeout(() => {
+      setOpenHandball(false);
+    }, 200); // 200ms de delay
+  };
+
+  // Funciones para manejar el hover del dropdown Institucional con delay
+  const handleInstitucionalMouseEnter = () => {
+    if (institucionalTimeoutRef.current) {
+      clearTimeout(institucionalTimeoutRef.current);
+      institucionalTimeoutRef.current = null;
+    }
+    setOpenInstitucional(true);
+  };
+
+  const handleInstitucionalMouseLeave = () => {
+    if (institucionalTimeoutRef.current) clearTimeout(institucionalTimeoutRef.current);
+    institucionalTimeoutRef.current = setTimeout(() => {
+      setOpenInstitucional(false);
+    }, 200); // 200ms de delay
+  };
 
   const handleLinkClick = (newVista: string) => {
     setVista(newVista);
@@ -570,9 +609,8 @@ export default function App() {
             <div 
               style={{ position: "relative" }} 
               onClick={stop}
-              onMouseLeave={() => {
-                setOpenHandball(false);
-              }}
+              onMouseEnter={handleHandballMouseEnter}
+              onMouseLeave={handleHandballMouseLeave}
             >
               <button
                 className={`nav-btn ${openHandball || isNavItemActive("handball") ? "active-nav-btn" : ""}`}
@@ -587,7 +625,7 @@ export default function App() {
                 <i className="fas fa-basketball"></i> Handball <i className="fas fa-chevron-down"></i>
               </button>
               {openHandball && (
-                <div className="dropdown" onClick={stop}>
+                <div className="dropdown" onClick={stop} onMouseEnter={handleHandballMouseEnter} onMouseLeave={handleHandballMouseLeave}>
                   <button className="dropdown-btn" onClick={() => handleLinkClick("clubes")}><i className="fas fa-shield-alt"></i> Clubes</button>
                   <button className="dropdown-btn" onClick={() => handleLinkClick("jugadores")}><i className="fas fa-users"></i> Jugadores</button>
                   <button className="dropdown-btn" onClick={() => handleLinkClick("estadisticas")}><i className="fas fa-chart-bar"></i> Tablas & Puntuación</button>
@@ -600,9 +638,8 @@ export default function App() {
             <div 
               style={{ position: "relative" }} 
               onClick={stop}
-              onMouseLeave={() => {
-                setOpenInstitucional(false);
-              }}
+              onMouseEnter={handleInstitucionalMouseEnter}
+              onMouseLeave={handleInstitucionalMouseLeave}
             >
               <button
                 className={`nav-btn ${openInstitucional || isNavItemActive("institucional") ? "active-nav-btn" : ""}`}
@@ -617,7 +654,7 @@ export default function App() {
                 <i className="fas fa-building"></i> Institucional <i className="fas fa-chevron-down"></i>
               </button>
               {openInstitucional && (
-                <div className="dropdown" onClick={stop}>
+                <div className="dropdown" onClick={stop} onMouseEnter={handleInstitucionalMouseEnter} onMouseLeave={handleInstitucionalMouseLeave}>
                   <button className="dropdown-btn" onClick={() => handleLinkClick("nosotros")}><i className="fas fa-info-circle"></i> Nosotros</button>
                   
                   {/* Mostrar solo si está logueado */}
