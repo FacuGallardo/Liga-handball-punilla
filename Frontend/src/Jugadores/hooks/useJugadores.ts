@@ -2,8 +2,7 @@
 
 import { useState, useCallback } from 'react';
 import type { Jugador, CreateJugadorPayload, UpdateJugadorPayload } from '../types/jugador.types';
-
-const API_URL = 'http://localhost:3001';
+import { API_URL } from '../../config/api';
 
 interface UseJugadoresReturn {
   jugadores: Jugador[];

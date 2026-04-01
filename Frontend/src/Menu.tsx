@@ -66,7 +66,8 @@ export default function App() {
   useEffect(() => {
     const cargarNoticias = async () => {
       try {
-        const respuesta = await fetch("http://localhost:3001/noticias");
+        const { API_URL } = await import('./config/api');
+        const respuesta = await fetch(`${API_URL}/noticias`);
         if (respuesta.ok) {
           const data = await respuesta.json();
           setNoticias(data);

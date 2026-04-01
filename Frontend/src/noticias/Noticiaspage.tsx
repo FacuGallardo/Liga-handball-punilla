@@ -17,7 +17,7 @@ type Noticia = {
 type FormNoticia = Omit<Noticia, 'id'> & { id?: number };
 
 type View = 'formulario' | 'lista' | 'novedades';
-const API_URL = 'http://localhost:3001/noticias';
+import { API_URL } from '../config/api';
 
 const NoticiasPage: React.FC = () => {
   // 🔒 Permisos
@@ -32,7 +32,7 @@ const NoticiasPage: React.FC = () => {
   useEffect(() => {
     const cargarNoticias = async () => {
       try {
-        const respuesta = await fetch(API_URL);
+        const respuesta = await fetch(`${API_URL}/noticias`);
         if (!respuesta.ok) throw new Error('Error al cargar noticias');
         const data = await respuesta.json();
         setNoticias(data);

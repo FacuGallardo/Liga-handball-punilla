@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { API_URL } from "../config/api";
 
 // --- Interfaz de Props ---
 interface LoginModalProps {
@@ -16,9 +17,6 @@ export default function LoginModal({ onLoginSuccess, onClose }: LoginModalProps)
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-
-  // URL del Backend (puedes mover esto a una variable de entorno después)
-  const API_URL = "http://localhost:3001";
 
   /**
    * Valida un string de email.

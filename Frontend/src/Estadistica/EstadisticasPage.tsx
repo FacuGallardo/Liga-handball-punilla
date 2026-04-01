@@ -3,8 +3,8 @@ import TablaEquipos from "./TablaEquipos";
 import { hasRole } from "../utils/auth"; // 🔒 Importar utilidad de roles
 import "./estadistica-responsive.css";
 
-// --- 👇 DEFINICIÓN DE API_URL 👇 ---
-const API_URL = "http://localhost:3001"; 
+import { API_URL } from '../config/api';
+// --- 👇 USANDO API_URL CENTRALIZADO 👇 ---
 
 // --- Definición del tipo Equipo ---
 export type Equipo = {

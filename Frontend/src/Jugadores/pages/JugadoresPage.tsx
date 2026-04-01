@@ -11,7 +11,7 @@ import '../styles/jugadores.css';
 
 type Vista = 'listado' | 'crear' | 'editar' | 'detalle';
 
-const API_URL = 'http://localhost:3001';
+import { API_URL } from '../../config/api';
 
 export const JugadoresPage: React.FC = () => {
   const { jugadores, loading, error, fetchJugadores, crearJugador, actualizarJugador, eliminarJugador, setError } = useJugadores();

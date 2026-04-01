@@ -46,7 +46,7 @@ interface CreateFixtureDto {
   partidos: CreateEncuentroDto[];
 }
 
-const API_URL = "http://localhost:3001";
+import { API_URL } from '../config/api';
 
 const FixturePage: React.FC = () => {
   // 🔒 Permisos: Solo la Presidenta edita/crea

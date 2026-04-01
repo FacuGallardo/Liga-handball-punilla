@@ -2,8 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import type { Club, ClubPayload, Localidad } from "../types";
-
-const API_URL = "http://localhost:3001";
+import { API_URL } from "../../config/api";
 
 const LOCALIDADES_FIJAS: Localidad[] = [
   { id: 1, nombre: "Bialet Masse" },
