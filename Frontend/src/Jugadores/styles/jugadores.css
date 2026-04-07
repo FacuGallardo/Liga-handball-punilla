@@ -1,5 +1,6 @@
 
-:root {
+/* Usar clase específica en lugar de :root para evitar conflictos globales */
+.jugadores-container {
   --color-primary: #1f3c88;
   --color-primary-hover: #142d5a;
   --color-edit: #F28723;
